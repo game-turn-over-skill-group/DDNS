@@ -7,7 +7,7 @@ python项目的证书验证有问题。。找GPT帮忙改写了win10能用的更
 https://github.com/rexdf/CommandTrayHost
 
 
-```
+```json
 {
     "configs": [
         { 
