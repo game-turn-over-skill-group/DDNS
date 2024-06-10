@@ -24,7 +24,7 @@ set DNS_SERVER=1.0.0.1
 
 REM 获取当前本地 IPv4 和 IPv6 地址
 for /F %%a in ('curl -s "https://ipv4.ddnspod.com"') do set IPV4=%%a
-for /F %%a in ('curl -s "https://6.ipw.cn"') do set IPV6=%%a
+for /F %%a in ('curl -s "https://ipv6.ddnspod.com"') do set IPV6=%%a
 
 REM 检查缓存文件是否存在，如果不存在则创建
 set CACHE_FILE=%TEMP%\ddns_cache.txt
