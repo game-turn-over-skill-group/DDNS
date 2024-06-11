@@ -24,7 +24,7 @@ set DNS_SERVER=1.0.0.1
 
 REM 获取当前本地 IPv4 和 IPv6 地址
 for /F %%a in ('curl -s "https://ipv4.ddnspod.com"') do set IPV4=%%a
-for /F %%a in ('curl -s "https://ipv6.ddnspod.com"') do set IPV6=%%a
+for /F %%a in ('curl -s -6 "https://ip.ddnspod.com"') do set IPV6=%%a
 REM 获取网卡临时 IPv6 地址（看需求替换备注[::]掉上面ipv6地址获取,这是从系统网卡中获取临时IPV6地址）
 ::for /F %%a in ('ipconfig ^| grep "Temporary IPv6 Address" ^| awk -F ": " "{print $2}" ^| head -n 1') do set IPV6=%%a
 
