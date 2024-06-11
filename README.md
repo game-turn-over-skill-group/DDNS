@@ -2,6 +2,7 @@
 
 ### 使用curl+batch更新cf-DDNS域名IP：
 
+* curl-windows-download：https://curl.se/windows/
 * python项目的证书验证有问题。。找GPT帮忙改写了win10能用的更新脚本
 * 关于计划任务定时重启 使用该项目（快速启动桌面右下角系统托盘图标程序）：
 * https://github.com/rexdf/CommandTrayHost
