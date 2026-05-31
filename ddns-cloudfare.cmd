@@ -12,21 +12,23 @@ set RECORD_ID_ipv4[0]=【使用[ddnsGetCloudfareURL-id.cmd]获取的域名专属
 set PROXIED_ipv4[0]=true【是否开启代理小云朵：true/false】
 
 REM 定义要更新的IPv6域名、记录ID和代理状态 (这是一个ipv6实例 上面参考这里设置)
-set HOST_ipv6[0]=bt1.rer.lol
+set HOST_ipv6[0]=qbt.rer.lol
 set HOST_ipv6[1]=test.rer.lol
 set RECORD_ID_ipv6[0]=6bd81r45451df4848d4a1356aa90e73
 set RECORD_ID_ipv6[1]=6818d4aee8f848848d4aa848d4a946a
 set PROXIED_ipv6[0]=false
 set PROXIED_ipv6[1]=false
 
-REM DNS服务器（这是一个无效参数 curl使用的是系统DNS）
+REM DNS服务器
 set DNS_SERVER=1.0.0.1
 
 REM 获取当前本地 IPv4 和 IPv6 地址
-for /F %%a in ('curl -s "https://ipv4.ddnspod.com"') do set IPV4=%%a
-for /F %%a in ('curl -s -6 "https://ip.ddnspod.com"') do set IPV6=%%a
+::for /F %%a in ('curl -s "https://ipv4.ddnspod.com"') do set IPV4=%%a
+::for /F %%a in ('curl -s -6 "https://ip.ddnspod.com"') do set IPV6=%%a
 REM 获取网卡临时 IPv6 地址（看需求替换备注[::]掉上面ipv6地址获取,这是从系统网卡中获取临时IPV6地址）
-::for /F %%a in ('ipconfig ^| grep "Temporary IPv6 Address" ^| awk -F ": " "{print $2}" ^| tail -n 1') do set IPV6=%%a
+::for /f "tokens=1* delims=:" %%a in ('ipconfig ^| findstr /c:"Temporary IPv6 Address"') do @for /f "tokens=*" %%c in ("%%b") do set "IPV6=%%c"
+REM 获取网卡 IPV6 短地址
+for /f "tokens=1* delims=:" %%a in ('ipconfig ^| findstr /c:"IPv6 Address" ^| findstr /v /c:"临时" ^| findstr /v /c:"Link-local IPv6 Address" ^| findstr /n "^" ^| findstr "^1:"') do @for /f "tokens=1* delims=:" %%c in ("%%b") do @for /f "tokens=*" %%e in ("%%d") do set "IPV6=%%e"
 
 REM 检查缓存文件是否存在，如果不存在则创建
 set CACHE_FILE=%TEMP%\ddns_cache.txt
@@ -48,28 +50,24 @@ for /F "tokens=1" %%i in (%CACHE_FILE%) do (
 )
 
 REM 比较当前IPv4地址和缓存中的IPv4地址
-if "%IPV4%" equ "%LAST_IPv4%" (
-    echo IPv4 地址未变化，跳过更新
-) else (
-    REM 更新 IPv4 地址
-    for /L %%i in (0, 1, 0) do (
-        if defined HOST_ipv4[%%i] call :updateDNS "!HOST_ipv4[%%i]!" "!RECORD_ID_ipv4[%%i]!" "%IPV4%" "A" "!PROXIED_ipv4[%%i]!"
+if defined IPV4 (
+    if "%IPV4%" equ "%LAST_IPv4%" (echo IPv4 地址未变化，跳过更新) else (
+        REM 更新 IPv4 地址
+        for /L %%i in (0,1,0) do if defined HOST_ipv4[%%i] call :updateDNS "!HOST_ipv4[%%i]!" "!RECORD_ID_ipv4[%%i]!" "%IPV4%" "A" "!PROXIED_ipv4[%%i]!"
     )
-)
+) else echo 未获取到 IPv4，跳过更新
 
 REM 比较当前IPv6地址和缓存中的IPv6地址
-if "%IPV6%" equ "%LAST_IPv6%" (
-    echo IPv6 地址未变化，跳过更新
-) else (
-    REM 更新 IPv6 地址
-    for /L %%i in (0, 1, 1) do (
-        if defined HOST_ipv6[%%i] call :updateDNS "!HOST_ipv6[%%i]!" "!RECORD_ID_ipv6[%%i]!" "%IPV6%" "AAAA" "!PROXIED_ipv6[%%i]!"
+if defined IPV6 (
+    if "%IPV6%" equ "%LAST_IPv6%" (echo IPv6 地址未变化，跳过更新) else (
+        REM 更新 IPv6 地址
+        for /L %%i in (0,1,1) do if defined HOST_ipv6[%%i] call :updateDNS "!HOST_ipv6[%%i]!" "!RECORD_ID_ipv6[%%i]!" "%IPV6%" "AAAA" "!PROXIED_ipv6[%%i]!"
     )
-)
+) else echo 未获取到 IPv6，跳过更新
 
 REM 更新缓存文件
-echo %IPV4% > "%CACHE_FILE%"
-echo %IPV6% >> "%CACHE_FILE%"
+> "%CACHE_FILE%" (if defined IPV4 (echo(%IPV4%) else (echo(NULL))
+>> "%CACHE_FILE%" (if defined IPV6 (echo(%IPV6%) else (echo(NULL))
 
 goto end
 
